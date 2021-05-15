@@ -12,7 +12,9 @@ struct ContentView: View {
     var body: some View {
         VStack{
         TextField("Enter City", text: $input)
-        Text(input)
+            .font(.title)
+            Divider()
+            Text(input).font(.body)
         }
     }
 }
