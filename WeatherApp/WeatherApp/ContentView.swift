@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var input:String = ""
+    var weatherViewModel = WeatherViewModel()
     var body: some View {
         VStack{
         TextField("Enter City", text: $input)

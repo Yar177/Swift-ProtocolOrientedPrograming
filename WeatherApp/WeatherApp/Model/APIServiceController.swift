@@ -11,7 +11,7 @@ private enum APIKey{
     static let key = "e4e65192ffabfc9e96e33be04be1f375"
 }
 class APIServiceController: WebServiceViewController{
-    func fetchWeatherData(for city:String, completionHandler: @escaping (String?, WebServiceViewControllerError) -> Void){
+    func fetchWeatherData(for city:String, completionHandler: @escaping (String?, WebServiceViewControllerError?) -> Void){
         //api.openweathermap.org/data/2.5/find?q=London&units=imperial
         let endPoint = "https://api.openweathermap.org/data/2.5/find?q=\(city)&units=imperial&appid=\(APIKey.key)"
         
@@ -29,11 +29,19 @@ class APIServiceController: WebServiceViewController{
                 completionHandler(nil, WebServiceViewControllerError.invalidPayload(endPointUrl))
                 return
             }
-            
             let decoder = JSONDecoder()
             do {
-                let weatherList = try decoder.decode(O)
+                let weatherList = try decoder.decode(OpenWeatherMapContainer.self, from: resposeData)
+                guard let weatherInfo = weatherList.list?.first, let weather = weatherInfo.weather.first?.main, let temerature = weatherInfo.main.temp else {
+                    completionHandler(nil, WebServiceViewControllerError.invalidPayload(endPointUrl))
+                    return
+                }
+                let weatherDescription = "\(weather) \(temerature) F"
+                completionHandler(weatherDescription, nil)
+            } catch let error {
+                completionHandler(nil, WebServiceViewControllerError.forwarded(error))
             }
         }
+        dataTask.resume()
     }
 }
